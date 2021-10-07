@@ -57,6 +57,11 @@ const CryptoCalc = (): JSX.Element => {
                 setValue((prevState) => ({
                     ...prevState,
                     [unit]: newValue,}));
+                setValidationError((prevState) => ({
+                    ...prevState,
+                    unit: "",
+                    error: "",
+                }));
             } catch (e: unknown) {
                 let errorMesssage: string;
                 if (typeof e === "string") {
