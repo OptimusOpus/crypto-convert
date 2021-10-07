@@ -6,9 +6,26 @@ import UnitFeild from '../components/UnitFeild'
 
 import { cryptos } from './constants'
 
-type UnitValue = {[key: string]: string;}
+// Types
+type UnitValue = {
+    [key: string]: string;
+};
+
+type Crypto = {
+    name: string,
+    slug: string,
+    units: any,
+    convertFn: any,
+    icon: string,
+};
+
+type cryptoOptions = {
+    [key: string]: Crypto
+};
 
 const CryptoCalc = (): JSX.Element => {
+
+    const Cryptos: cryptoOptions = cryptos
 
     const [crypto , setCrypto] = React.useState(cryptos['ETH'])
 
@@ -28,9 +45,10 @@ const CryptoCalc = (): JSX.Element => {
     const [value, setValue] = React.useState(unitValues)
 
     const handleCryptoChange = (crypto: string) => {
-        setCrypto(cryptos[crypto])
+        const x = Cryptos[crypto]
+        setCrypto(Cryptos[crypto])
 
-        let units = Object.keys(cryptos[crypto].units)
+        let units = Object.keys(Cryptos[crypto].units)
 
         let unitValues: UnitValue
         unitValues = {}
