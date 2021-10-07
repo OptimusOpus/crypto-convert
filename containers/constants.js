@@ -1,4 +1,4 @@
-import Units from 'crypto-units-convert'
+import Units from 'crypto-units-convert';
 
 export const cryptos = {
     BTC: {
@@ -65,5 +65,3 @@ export const cryptos = {
         icon: "zec.svg",
     }
 }
-
-export type UnitValue = {[key: string]: string;}

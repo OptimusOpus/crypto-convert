@@ -4,8 +4,9 @@ import Image from 'next/image'
 import Dropdown from '../components/Dropdown'
 import UnitFeild from '../components/UnitFeild'
 
-import { cryptos, UnitValue } from './constants'
+import { cryptos } from './constants'
 
+type UnitValue = {[key: string]: string;}
 
 const CryptoCalc = (): JSX.Element => {
 
