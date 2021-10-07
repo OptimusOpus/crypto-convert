@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Dropdown from '../components/Dropdown'
 import UnitFeild from '../components/UnitFeild'
 
-import { cryptos } from './constants'
+import { cryptos, UnitValue } from './constants'
 
 
 const CryptoCalc = (): JSX.Element => {
@@ -16,12 +16,12 @@ const CryptoCalc = (): JSX.Element => {
         error: "",
     })
 
-
     let units = Object.keys(crypto.units)
 
-    let unitValues = {}
+    let unitValues: UnitValue
+    unitValues = {}
     units.forEach(unit => {
-        unitValues[unit] = 0;
+        unitValues[unit] = '0';
     })
 
     const [value, setValue] = React.useState(unitValues)
@@ -30,9 +30,11 @@ const CryptoCalc = (): JSX.Element => {
         setCrypto(cryptos[crypto])
 
         let units = Object.keys(cryptos[crypto].units)
-        let unitValues = {}
+
+        let unitValues: UnitValue
+        unitValues = {}
         units.forEach(unit => {
-            unitValues[unit] = 0;
+            unitValues[unit] = '0';
         })
 
         setValue((prevState) => ({
@@ -86,7 +88,7 @@ const CryptoCalc = (): JSX.Element => {
           {Dropdown({cryptos, crypto, handleCryptoChange})}
           </div>
         </section>
-        <section className="flex flex-col content-center rounded-b items-center justify-between bg-grey-200 px-2 md:px-4">
+        <section className="flex flex-col content-center rounded-b items-center justify-between bg-grey-200 px-2 h-full md:px-4">
           <div className="justify-evenly container mx-auto my-4">
             {renderedFeilds}
           </div>

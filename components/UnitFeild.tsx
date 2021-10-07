@@ -1,5 +1,4 @@
 import React from 'react';
-import { Crypto } from './constants'
 
 type ValidationError = {
     unit: string,

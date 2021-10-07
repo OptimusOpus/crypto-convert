@@ -147,6 +147,5 @@ module.exports = {
         borderRadius: ['first', 'last'],
       },
     },
-    darkMode: 'class',
   plugins: [],
 }

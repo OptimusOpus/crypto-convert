@@ -65,3 +65,5 @@ export const cryptos = {
         icon: "zec.svg",
     }
 }
+
+export type UnitValue = {[key: string]: string;}
