@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import React from 'react';
 import CryptoCalc from '../containers/'
-import EllipsisText from "react-ellipsis-text";
 
 
 const Home: NextPage = () => {
@@ -31,7 +31,7 @@ const Home: NextPage = () => {
           If you find any issues feel free to raise it <a className='text-red hover:underline' href='https://github.com/OptimusOpus/crypto-convert' target='_blank'>here</a>.
           </p>
           Donate to the coffee fund 
-          <EllipsisText className='md:hidden' text={' 0xc0ffEe284afC4fdA06cC831e4DA43097146f704D'} length={32} />
+          <div className='md:hidden text-sm overflow'> <span className='text-green-dark'>0xc0ffEe</span> 284afC4fdA06cC831e4DA43097146f704D </div>
           <div className='hidden md:flex'> <span className='text-green-dark'>0xc0ffEe</span>284afC4fdA06cC831e4DA43097146f704D </div>
         </div>
       </footer>
