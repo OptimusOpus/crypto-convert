@@ -7,6 +7,8 @@ import UnitFeild from '../components/UnitFeild'
 import { cryptos } from './constants'
 
 // Types
+
+//////////////////////////////
 type UnitValue = {
     [key: string]: string;
 };
@@ -23,11 +25,24 @@ type cryptoOptions = {
     [key: string]: Crypto
 };
 
-const CryptoCalc = (): JSX.Element => {
+//This is a dup
+type CryptoPrice = {
+    [key: string]: number;
+};
 
+type Props = {
+    cryptoPrices: CryptoPrice
+}
+//////////////////////////////
+
+
+
+const CryptoCalc = (props: Props ): JSX.Element => {
     const Cryptos: cryptoOptions = cryptos
+    const { cryptoPrices } = props
 
     const [crypto , setCrypto] = React.useState(cryptos['ETH'])
+    const cryptoPrice = Math.round(cryptoPrices[crypto.slug.toUpperCase()] * 100) / 100 
 
     const [validationError, setValidationError] = React.useState({
         unit: "",
@@ -104,12 +119,26 @@ const CryptoCalc = (): JSX.Element => {
     return (
         <>
         <section className="flex flex-col content-center rounded-t justify-start bg-grey-200 px-2 md:px-4 h-18">
-        <div className='flex my-4 font-600 text-blue-dark text-xl items-center'>
-          {<Image src={`/icons/${crypto.icon}`} height={24} width={24} alt={crypto.slug}/>}
-          <span className='p-2'>{crypto.name}</span>
+        <div className='flex my-4 font-600 text-blue-dark text-xl  justify-between'>
+          <div className='flex items-center'>
+            {<Image src={`/icons/${crypto.icon}`} height={24} width={24} alt={crypto.slug}/>}
+            <span className='p-2'>{crypto.name}</span>
           </div>
-          <div className="flex justify-start container mx-auto my-4">
+          <div className='flex flex-col text-right'>
+              <span>Current Price</span>
+              <span className='mt-1 text-right text-md'>~ ${cryptoPrice} USD</span>
+          </div>
+          </div>
+          <div className='flex'>
+          <div className="flex container  my-4">
           {Dropdown({cryptos, crypto, handleCryptoChange})}
+          </div>
+          <div className="flex flex-col text-right font-500">
+            <span className=''>Converted</span>
+            <span className='mt-1 text-right'>
+                ~ ${Math.round(cryptoPrice * parseFloat(value[units[units.length - 1]])  * 100) / 100} USD
+            </span>
+          </div>
           </div>
         </section>
         <section className="flex flex-col content-center rounded-b items-center justify-between bg-grey-200 px-2 h-full md:px-4">

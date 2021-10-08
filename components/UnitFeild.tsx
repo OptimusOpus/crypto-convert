@@ -17,14 +17,14 @@ const UnitFeild = (props: Props): JSX.Element => {
     const { unit, value, handleAmountChange, validationError } = props
     return (
         <div key={unit}>
-        <div className="flex justify-between py-4 px-2 md:p-4 my-2 bg-blue-light rounded">
-            <div className="font-500">
+        <div className="flex justify-between py-4 px-2 md:p-4 my-2 bg-blue-light text-grey-200 rounded">
+            <div className="font-600">
                 {unit}:
             </div>
             <input
                 type="number"
                 name={unit}
-                className={validationError.unit == unit ? "border-4 border-red w-3/4 md:w-1/3 p-1" : "w-3/4 md:w-1/3 p-1"}
+                className={validationError.unit == unit ? "border-4 border-red w-3/4 md:w-1/3 p-1 text-black" : "w-3/4 md:w-1/3 p-1 text-black"}
                 placeholder={unit}
                 value={value[unit]}
                 onChange={(evt) => handleAmountChange(evt.target.value, unit)}
