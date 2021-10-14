@@ -4,36 +4,12 @@ import Image from 'next/image'
 import Dropdown from '../components/Dropdown'
 import UnitFeild from '../components/UnitFeild'
 
+import { UnitValue, cryptoOptions, CryptoPrice} from './types'
 import { cryptos } from './constants'
-
-// Types
-
-//////////////////////////////
-type UnitValue = {
-    [key: string]: string;
-};
-
-type Crypto = {
-    name: string,
-    slug: string,
-    units: any,
-    convertFn: any,
-    icon: string,
-};
-
-type cryptoOptions = {
-    [key: string]: Crypto
-};
-
-//This is a dup
-type CryptoPrice = {
-    [key: string]: number;
-};
 
 type Props = {
     cryptoPrices: CryptoPrice
 }
-//////////////////////////////
 
 
 

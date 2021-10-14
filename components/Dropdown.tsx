@@ -1,7 +1,7 @@
 import { Menu, Transition } from '@headlessui/react'
 import { ReactChild, ReactFragment, ReactPortal } from 'react';
 import Image from 'next/image'
-import { Crypto } from './constants'
+import { Crypto } from '../containers/types'
 
 type SetCrypto = (crypto: string) => void;
 

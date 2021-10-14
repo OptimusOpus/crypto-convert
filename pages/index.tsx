@@ -3,12 +3,8 @@ import Head from 'next/head'
 
 import React from 'react';
 import CryptoCalc from '../containers/'
+import { CryptoPrice } from '../containers/types'
 import { cryptos } from '../containers/constants'
-
-// TODO: move all types to a types file
-type CryptoPrice = {
-    [key: string]: number;
-};
 
 const cryptoSymbols = Object.keys(cryptos)
 
