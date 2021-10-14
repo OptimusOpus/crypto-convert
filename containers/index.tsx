@@ -95,7 +95,7 @@ const CryptoCalc = (props: Props ): JSX.Element => {
     return (
         <>
         <section className="flex flex-col content-center rounded-t justify-start bg-grey-200 px-2 md:px-4 h-18">
-        <div className='flex my-4 font-600 text-blue-dark text-xl  justify-between'>
+        <div className='flex my-4 font-600 text-green text-xl  justify-between'>
           <div className='flex items-center'>
             {<Image src={`/icons/${crypto.icon}`} height={24} width={24} alt={crypto.slug}/>}
             <span className='p-2'>{crypto.name}</span>
@@ -109,7 +109,7 @@ const CryptoCalc = (props: Props ): JSX.Element => {
           <div className="flex container  my-4">
           {Dropdown({cryptos, crypto, handleCryptoChange})}
           </div>
-          <div className="flex flex-col text-right font-500">
+          <div className="flex flex-col text-right font-500 text-green">
             <span className=''>Converted</span>
             <span className='mt-1 text-right'>
                 ~ ${Math.round(cryptoPrice * parseFloat(value[units[units.length - 1]])  * 100) / 100} USD

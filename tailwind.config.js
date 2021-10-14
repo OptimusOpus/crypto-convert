@@ -89,7 +89,7 @@ module.exports = {
         orange: {
           lightest: '#ffdbb4',
           light: '#ffaa51',
-          DEFAULT: '#ff8606',
+          DEFAULT: '#dea82f',
           dark: '#e67905',
         },
         yellow: {
@@ -101,18 +101,18 @@ module.exports = {
         green: {
           lightest: '#d3f1da',
           light: '#21ba45',
-          DEFAULT: '#1a9537',
+          DEFAULT: '#5b7332',
           dark: '#147029',
         },
         blue: {
           lightest: '#e6f2ff',
           light: '#3395ff',
-          DEFAULT: '#007bff',
+          DEFAULT: '#63aeb1',
           dark: '#0056b3',
         },
         purple: {
-          light: '#437ae1',
-          DEFAULT: '#3e73db',
+          light: '#bb33ff',
+          DEFAULT: '#622780',
           darkish: '#1A47B5',
           dark: '#0649b6',
         },
