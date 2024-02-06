@@ -17,7 +17,7 @@ const UnitFeild = (props: Props): JSX.Element => {
     const { unit, value, handleAmountChange, validationError } = props
     return (
         <div key={unit}>
-        <div className="flex justify-between py-4 px-2 md:p-4 my-2 bg-blue text-grey-200 rounded">
+        <div className="flex justify-between py-4 px-2 md:p-4 my-2 bg-blue-light text-grey-200 rounded">
             <div className="font-600">
                 {unit}:
             </div>

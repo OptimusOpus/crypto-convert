@@ -39,7 +39,7 @@ function Dropdown(props: Props) {
   return (
     <Menu>
       <div className='flex flex-col cursor-pointer'>
-      <Menu.Button className='rounded bg-blue text-grey-200 px-4 py-2 hover:bg-grey-400 hover:text-blue text-sm font-600 hover:text-black'>
+      <Menu.Button className='rounded bg-blue-light text-grey-200 px-4 py-2 hover:bg-grey-400 hover:text-blue text-sm font-600 hover:text-black'>
           Change Crypto
       </Menu.Button>
       <Menu.Items className='absolute flex flex-col rounded px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50' id="menu-button" aria-expanded="true" aria-haspopup="true">

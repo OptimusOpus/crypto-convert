@@ -46,8 +46,8 @@ const Home: NextPage = ({ prices }: InferGetServerSidePropsType<typeof getServer
         <meta name="Crypto unit converter" content="Crypto unit converter" />
       </Head>
 
-      <header className='flex items-center justify-start bg-orange p-4 h-full md:py-12'>
-        <h1 className={'mx-auto container p-2 my-4 md:my-8 font-600 text-green bg-grey-300 rounded text-2xl w-auto'}>
+      <header className='flex items-center justify-start bg-blue-dark p-4 h-full md:py-12'>
+        <h1 className={'mx-auto container p-2 my-4 md:my-8 font-600 text-blue-darkest bg-grey-300 rounded text-2xl w-auto'}>
         Crypto Unit Converter
         </h1>
       </header>
@@ -55,8 +55,8 @@ const Home: NextPage = ({ prices }: InferGetServerSidePropsType<typeof getServer
         <CryptoCalc cryptoPrices={cryptoPrices}/>
       </main>
 
-      <footer className='bg-orange p-4 md:py-12 h-full'>
-        <div className='mx-auto container p-2 my-4 md:my-16 font-600 text-green leading-loose bg-grey-200 rounded'>
+      <footer className='bg-blue-dark p-4 md:py-12 h-full'>
+        <div className='mx-auto container p-2 my-4 md:my-16 font-600 text-orange-dark leading-loose bg-grey-200 rounded'>
           <p className='my-4'>
           After using a few similar cryptocurrency unit converting apps I couldn’t find one that had all the cryptos I was working with. I decided to fork crypto-unit-convert (to ensure base units are always integers) and implement it here for ease of use.
           </p>
@@ -64,8 +64,8 @@ const Home: NextPage = ({ prices }: InferGetServerSidePropsType<typeof getServer
           If you find any issues feel free to raise it <a className='text-red hover:underline' href='https://github.com/OptimusOpus/crypto-convert' target='_blank'>here</a>.
           </p>
           Donate to the coffee fund 
-          <div className='md:hidden text-sm overflow'> <span className='text-green-dark'>0xc0ffEe</span> 284afC4fdA06cC831e4DA43097146f704D </div>
-          <div className='hidden md:flex mb-4'> <span className='text-green-dark'>0xc0ffEe</span>284afC4fdA06cC831e4DA43097146f704D </div>
+          <div className='md:hidden text-sm overflow'> <span className='text-orange-dark'>0xc0ffEe</span> 284afC4fdA06cC831e4DA43097146f704D </div>
+          <div className='hidden md:flex mb-4'> <span className='text-orange-dark'>0xc0ffEe</span>284afC4fdA06cC831e4DA43097146f704D </div>
         </div>
       </footer>
     </div>

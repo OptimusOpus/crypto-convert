@@ -109,6 +109,7 @@ module.exports = {
           light: '#3395ff',
           DEFAULT: '#63aeb1',
           dark: '#0056b3',
+          darkest: '#003c82',
         },
         purple: {
           light: '#bb33ff',
