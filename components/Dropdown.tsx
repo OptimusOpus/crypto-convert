@@ -1,53 +1,75 @@
 import { Menu, Transition } from '@headlessui/react'
-import { ReactChild, ReactFragment, ReactPortal } from 'react';
+import React, { Fragment, useCallback } from 'react';
 import Image from 'next/image'
-import { Crypto } from '../containers/types'
-
-type SetCrypto = (crypto: string) => void;
+import { Crypto, cryptoOptions } from '../containers/types'
 
 type Props = {
-    cryptos: any,
-    crypto: Crypto,
-    handleCryptoChange: SetCrypto
+    cryptos: cryptoOptions;
+    crypto: Crypto;
+    handleCryptoChange: (crypto: string) => void;
 }
 
-function Dropdown(props: Props) {
-    const { cryptos, crypto, handleCryptoChange } = props;
+function Dropdown({ cryptos, crypto, handleCryptoChange }: Props) {
     const cryptoKeys = Object.keys(cryptos)
+    
+    // Memoize dropdown items to prevent unnecessary re-renders
+    const renderDropdownItem = useCallback((cryptoKey: string, index: number) => {
+        const currentCrypto = cryptos[cryptoKey]
+        return (
+            <Menu.Item key={currentCrypto.name}>
+                {({ active }) => (
+                    <button
+                        type="button"
+                        className={`${active 
+                            ? 'bg-blue-lightest text-blue-dark' 
+                            : 'text-grey-700'} 
+                            flex items-center w-full px-4 py-2 text-sm rounded-md cursor-pointer transition-colors duration-150`}
+                        onClick={() => handleCryptoChange(cryptoKey)}
+                    >
+                        <div className="mr-2">
+                            <Image 
+                                src={`/icons/${currentCrypto.icon}`} 
+                                height={18} 
+                                width={18} 
+                                alt={currentCrypto.slug} 
+                            />
+                        </div>
+                        <span>{currentCrypto.name}</span>
+                    </button>
+                )}
+            </Menu.Item>
+        )
+    }, [cryptos, handleCryptoChange])
+    
+    const dropdownItems = cryptoKeys.map(renderDropdownItem)
 
-    const dropdownItems = cryptoKeys.map( (crypto, index) => {
-        return(
-        <Menu.Item key={cryptos[crypto].name}>
-            {({ active }) => (
-            <a
-                className={`${
-                    active ? 'bg-grey-400 text-grey-200 p-1 m-1 items-center rounded' : 'text-orange p-1 m-1 items-center rounded'
-                }`}
-                onClick={() => handleCryptoChange(cryptoKeys[index])}
+    return (
+        <Menu as="div" className="relative inline-block text-left">
+            <div>
+                <Menu.Button className="inline-flex justify-center w-full rounded-md border border-blue-light bg-white px-4 py-2 text-sm font-600 text-blue-dark shadow-sm hover:bg-blue-lightest focus:outline-none focus:ring-2 focus:ring-blue transition-colors duration-200">
+                    Change Crypto
+                    <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                </Menu.Button>
+            </div>
+            <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
             >
-                {<Image src={`/icons/${cryptos[crypto].icon}`} height={15} width={15} alt={cryptos[crypto].slug}/>}
-                <span className='p-2'>{cryptos[crypto].name}</span>
-            </a>
-            )}
-        </Menu.Item>
-     )})
-
-
-
-
-
-  return (
-    <Menu>
-      <div className='flex flex-col cursor-pointer'>
-      <Menu.Button className='rounded bg-blue-light text-grey-200 px-4 py-2 hover:bg-grey-400 hover:text-blue text-sm font-600 hover:text-black'>
-          Change Crypto
-      </Menu.Button>
-      <Menu.Items className='absolute flex flex-col rounded px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50' id="menu-button" aria-expanded="true" aria-haspopup="true">
-        {dropdownItems}
-      </Menu.Items>
-      </div>
-    </Menu>
-  )
+                <Menu.Items className="absolute left-0 z-10 mt-2 w-56 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div className="py-1">
+                        {dropdownItems}
+                    </div>
+                </Menu.Items>
+            </Transition>
+        </Menu>
+    )
 }
 
 export default Dropdown
