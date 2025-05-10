@@ -93,36 +93,38 @@ const CryptoCalc = (props: Props ): JSX.Element => {
         return UnitFeild({unit, value, handleAmountChange, validationError})
     })
     return (
-        <>
-        <section className="flex flex-col content-center rounded-t justify-start bg-grey-200 px-2 md:px-4 h-18">
-        <div className='flex my-4 font-600 text-blue-darkest text-xl  justify-between'>
-          <div className='flex items-center'>
-            {<Image src={`/icons/${crypto.icon}`} height={24} width={24} alt={crypto.slug}/>}
-            <span className='p-2'>{crypto.name}</span>
-          </div>
-          <div className='flex flex-col text-right'>
-              <span>Current Price</span>
-              <span className='mt-1 text-right text-md'>~ ${cryptoPrice} USD</span>
-          </div>
-          </div>
-          <div className='flex'>
-          <div className="flex container  my-4">
-          {Dropdown({cryptos, crypto, handleCryptoChange})}
-          </div>
-          <div className="flex flex-col text-right font-500 text-blue-darkest">
-            <span className=''>Converted</span>
-            <span className='mt-1 text-right'>
-                ~ ${Math.round(cryptoPrice * parseFloat(value[units[units.length - 1]])  * 100) / 100} USD
-            </span>
-          </div>
-          </div>
-        </section>
-        <section className="flex flex-col content-center rounded-b items-center justify-between bg-grey-200 px-2 h-full md:px-4">
-          <div className="justify-evenly container mx-auto my-4">
-            {renderedFeilds}
-          </div>
-        </section>
-      </>
+        <div className="overflow-hidden shadow-lg rounded-lg">
+          <section className="flex flex-col content-center rounded-t-lg justify-start bg-white border-b border-grey-200 px-4 md:px-6 py-4">
+            <div className='flex my-2 font-600 text-blue-darkest text-xl justify-between items-center'>
+              <div className='flex items-center'>
+                <div className="bg-blue-lightest p-2 rounded-full mr-2">
+                  {<Image src={`/icons/${crypto.icon}`} height={28} width={28} alt={crypto.slug}/>}
+                </div>
+                <span className='font-600'>{crypto.name}</span>
+              </div>
+              <div className='flex flex-col text-right'>
+                <span className="text-sm text-grey-600">Current Price</span>
+                <span className='mt-1 text-right text-lg font-600 text-blue-dark'>$ {cryptoPrice} USD</span>
+              </div>
+            </div>
+            <div className='flex justify-between items-center mt-4'>
+              <div className="flex my-2">
+                {Dropdown({cryptos, crypto, handleCryptoChange})}
+              </div>
+              <div className="flex flex-col text-right font-500 text-blue-darkest">
+                <span className='text-sm text-grey-600'>Converted Value</span>
+                <span className='mt-1 text-right text-lg font-600 text-green-light'>
+                  $ {Math.round(cryptoPrice * parseFloat(value[units[units.length - 1]]) * 100) / 100} USD
+                </span>
+              </div>
+            </div>
+          </section>
+          <section className="flex flex-col content-center rounded-b-lg items-center justify-between bg-grey-100 px-4 py-6 md:px-6">
+            <div className="w-full mx-auto space-y-4">
+              {renderedFeilds}
+            </div>
+          </section>
+        </div>
     )
 }
 
