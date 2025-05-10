@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image'
 
 import Dropdown from '../components/Dropdown'
-import UnitFeild from '../components/UnitFeild'
+import UnitField from '../components/UnitField'
 
-import { UnitValue, cryptoOptions, CryptoPrice} from './types'
+import { UnitValue, cryptoOptions, CryptoPrice, ValidationError } from './types'
 import { cryptos } from './constants'
 
 type Props = {
@@ -13,94 +13,126 @@ type Props = {
 
 
 
-const CryptoCalc = (props: Props ): JSX.Element => {
+const CryptoCalc = (props: Props): JSX.Element => {
     const Cryptos: cryptoOptions = cryptos
     const { cryptoPrices } = props
 
-    const [crypto , setCrypto] = React.useState(cryptos['ETH'])
-    const cryptoPrice = Math.round(cryptoPrices[crypto.slug.toUpperCase()] * 100) / 100 
-
-    const [validationError, setValidationError] = React.useState({
+    const [selectedCrypto, setSelectedCrypto] = useState(cryptos['ETH'])
+    const [validationError, setValidationError] = useState<ValidationError>({
         unit: "",
         error: "",
     })
-
-    let units = Object.keys(crypto.units)
-
-    let unitValues: UnitValue
-    unitValues = {}
-    units.forEach(unit => {
-        unitValues[unit] = '0';
-    })
-
-    const [value, setValue] = React.useState(unitValues)
-
-    const handleCryptoChange = (crypto: string) => {
-        const x = Cryptos[crypto]
-        setCrypto(Cryptos[crypto])
-
-        let units = Object.keys(Cryptos[crypto].units)
-
-        let unitValues: UnitValue
-        unitValues = {}
-        units.forEach(unit => {
-            unitValues[unit] = '0';
+    
+    // Calculate crypto price with proper error handling
+    const cryptoPrice = cryptoPrices[selectedCrypto.slug.toUpperCase()] 
+        ? Math.round(cryptoPrices[selectedCrypto.slug.toUpperCase()] * 100) / 100 
+        : 0
+    
+    // Get units for the selected crypto
+    const units = Object.keys(selectedCrypto.units)
+    
+    // Initialize unit values using useCallback to avoid recreating on every render
+    const initializeUnitValues = useCallback((crypto: typeof selectedCrypto): UnitValue => {
+        const unitKeys = Object.keys(crypto.units)
+        const values: UnitValue = {}
+        unitKeys.forEach(unit => {
+            values[unit] = '0'
         })
+        return values
+    }, [])
+    
+    // State for unit values
+    const [value, setValue] = useState<UnitValue>(() => initializeUnitValues(selectedCrypto))
 
-        setValue((prevState) => ({
-            ...prevState,
-            ...unitValues
-        }));
+    // Update values when crypto changes
+    useEffect(() => {
+        setValue(initializeUnitValues(selectedCrypto))
+    }, [selectedCrypto, initializeUnitValues])
 
-    }
+    // Handle crypto change
+    const handleCryptoChange = useCallback((crypto: string) => {
+        if (Cryptos[crypto]) {
+            setSelectedCrypto(Cryptos[crypto])
+            // Reset validation errors when changing crypto
+            setValidationError({
+                unit: "",
+                error: "",
+            })
+        }
+    }, [Cryptos])
 
-    const handleAmountChange = (amount: string, updatedUnit: string) => {
-        units.forEach(unit => {
-            if (unit == updatedUnit) {
-                setValue((prevState) => ({
-                    ...prevState,
-                    [unit]: amount,}));
-            } else if (unit != updatedUnit && amount != ''){
-                // add error check here
-                try {
-                const newValue = crypto.convertFn(amount, updatedUnit, unit)
-                setValue((prevState) => ({
-                    ...prevState,
-                    [unit]: newValue,}));
-                setValidationError((prevState) => ({
-                    ...prevState,
+    // Handle amount change with improved error handling
+    const handleAmountChange = useCallback((amount: string, updatedUnit: string) => {
+        // Create a new state object to update all units at once
+        const newValues: UnitValue = { ...value }
+        
+        // Update the changed unit
+        newValues[updatedUnit] = amount
+        
+        // Only attempt conversion if there's a value
+        if (amount !== '') {
+            try {
+                // Update all other units
+                units.forEach(unit => {
+                    if (unit !== updatedUnit) {
+                        newValues[unit] = selectedCrypto.convertFn(amount, updatedUnit, unit)
+                    }
+                })
+                
+                // Clear any validation errors
+                setValidationError({
                     unit: "",
                     error: "",
-                }));
+                })
             } catch (e: unknown) {
-                let errorMesssage: string;
+                // Handle conversion errors
+                let errorMessage = "Unknown error occurred"
+                
                 if (typeof e === "string") {
-                    errorMesssage = e.toUpperCase();
-                  } else if (e instanceof Error) {
-                      errorMesssage = e.message;
-                  }
-                  setValidationError((prevState) => ({
-                    ...prevState,
-                    unit: updatedUnit,
-                    error: errorMesssage,
-                }));
+                    errorMessage = e.toUpperCase()
+                } else if (e instanceof Error) {
+                    errorMessage = e.message
                 }
+                
+                setValidationError({
+                    unit: updatedUnit,
+                    error: errorMessage,
+                })
             }
-        })
-    }
+        } else {
+            // If the field is empty, set all other fields to 0
+            units.forEach(unit => {
+                if (unit !== updatedUnit) {
+                    newValues[unit] = '0'
+                }
+            })
+        }
+        
+        // Update state once with all changes
+        setValue(newValues)
+    }, [units, value, selectedCrypto])
 
-    let renderedFeilds = units.map(unit => {
-        return UnitFeild({unit, value, handleAmountChange, validationError})
-    })
+    // Memoize the rendered fields to avoid unnecessary re-renders
+    const renderedFields = React.useMemo(() => {
+        return units.map(unit => (
+            <UnitField 
+                key={unit}
+                unit={unit}
+                value={value}
+                handleAmountChange={handleAmountChange}
+                validationError={validationError}
+            />
+        ))
+    }, [units, value, handleAmountChange, validationError])
     return (
         <div className="overflow-hidden shadow-lg rounded-lg">
           <section className="flex flex-col content-center rounded-t-lg justify-start bg-white border-b border-grey-200 px-4 md:px-6 py-4">
             <div className='flex my-2 font-600 text-blue-darkest text-xl justify-between items-center'>
               <div className='flex items-center'>
                 <div className="bg-blue-lightest p-2 rounded-full mr-2">
-                  {<Image src={`/icons/${crypto.icon}`} height={28} width={28} alt={crypto.slug}/>}
+                  {<Image src={`/icons/${selectedCrypto.icon}`} height={28} width={28} alt={selectedCrypto.slug}/>}
                 </div>
-                <span className='font-600'>{crypto.name}</span>
+                <span className='font-600'>{selectedCrypto.name}</span>
               </div>
               <div className='flex flex-col text-right'>
                 <span className="text-sm text-grey-600">Current Price</span>
@@ -109,19 +141,19 @@ const CryptoCalc = (props: Props ): JSX.Element => {
             </div>
             <div className='flex justify-between items-center mt-4'>
               <div className="flex my-2">
-                {Dropdown({cryptos, crypto, handleCryptoChange})}
+                <Dropdown cryptos={cryptos} crypto={selectedCrypto} handleCryptoChange={handleCryptoChange} />
               </div>
               <div className="flex flex-col text-right font-500 text-blue-darkest">
                 <span className='text-sm text-grey-600'>Converted Value</span>
                 <span className='mt-1 text-right text-lg font-600 text-green-light'>
-                  $ {Math.round(cryptoPrice * parseFloat(value[units[units.length - 1]]) * 100) / 100} USD
+                  $ {Math.round(cryptoPrice * (parseFloat(value[units[units.length - 1]]) || 0) * 100) / 100} USD
                 </span>
               </div>
             </div>
           </section>
           <section className="flex flex-col content-center rounded-b-lg items-center justify-between bg-grey-100 px-4 py-6 md:px-6">
             <div className="w-full mx-auto space-y-4">
-              {renderedFeilds}
+              {renderedFields}
             </div>
           </section>
         </div>

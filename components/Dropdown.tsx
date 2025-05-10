@@ -1,40 +1,47 @@
 import { Menu, Transition } from '@headlessui/react'
-import React from 'react';
+import React, { Fragment, useCallback } from 'react';
 import Image from 'next/image'
-import { Crypto } from '../containers/types'
-
-type SetCrypto = (crypto: string) => void;
+import { Crypto, cryptoOptions } from '../containers/types'
 
 type Props = {
-    cryptos: any,
-    crypto: Crypto,
-    handleCryptoChange: SetCrypto
+    cryptos: cryptoOptions;
+    crypto: Crypto;
+    handleCryptoChange: (crypto: string) => void;
 }
 
-function Dropdown(props: Props) {
-    const { cryptos, crypto, handleCryptoChange } = props;
+function Dropdown({ cryptos, crypto, handleCryptoChange }: Props) {
     const cryptoKeys = Object.keys(cryptos)
-
-    const dropdownItems = cryptoKeys.map((crypto, index) => {
+    
+    // Memoize dropdown items to prevent unnecessary re-renders
+    const renderDropdownItem = useCallback((cryptoKey: string, index: number) => {
+        const currentCrypto = cryptos[cryptoKey]
         return (
-            <Menu.Item key={cryptos[crypto].name}>
+            <Menu.Item key={currentCrypto.name}>
                 {({ active }) => (
-                    <a
+                    <button
+                        type="button"
                         className={`${active 
                             ? 'bg-blue-lightest text-blue-dark' 
                             : 'text-grey-700'} 
-                            flex items-center px-4 py-2 text-sm rounded-md cursor-pointer transition-colors duration-150`}
-                        onClick={() => handleCryptoChange(cryptoKeys[index])}
+                            flex items-center w-full px-4 py-2 text-sm rounded-md cursor-pointer transition-colors duration-150`}
+                        onClick={() => handleCryptoChange(cryptoKey)}
                     >
                         <div className="mr-2">
-                            {<Image src={`/icons/${cryptos[crypto].icon}`} height={18} width={18} alt={cryptos[crypto].slug} />}
+                            <Image 
+                                src={`/icons/${currentCrypto.icon}`} 
+                                height={18} 
+                                width={18} 
+                                alt={currentCrypto.slug} 
+                            />
                         </div>
-                        <span>{cryptos[crypto].name}</span>
-                    </a>
+                        <span>{currentCrypto.name}</span>
+                    </button>
                 )}
             </Menu.Item>
         )
-    })
+    }, [cryptos, handleCryptoChange])
+    
+    const dropdownItems = cryptoKeys.map(renderDropdownItem)
 
     return (
         <Menu as="div" className="relative inline-block text-left">
@@ -47,7 +54,7 @@ function Dropdown(props: Props) {
                 </Menu.Button>
             </div>
             <Transition
-                as={React.Fragment}
+                as={Fragment}
                 enter="transition ease-out duration-100"
                 enterFrom="transform opacity-0 scale-95"
                 enterTo="transform opacity-100 scale-100"
