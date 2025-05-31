@@ -1,4 +1,5 @@
 // services/cmcService.ts
+import axios from 'axios';
 import { BaseCryptoData } from '../containers/types'; // Import BaseCryptoData
 
 export interface CMCCrypto {
@@ -30,18 +31,7 @@ interface CachedData {
   data: CMCCrypto[];
 }
 
-const mockCryptoData: CMCCrypto[] = [
-  { id: 1, name: "Bitcoin", symbol: "BTC", slug: "bitcoin" },
-  { id: 1027, name: "Ethereum", symbol: "ETH", slug: "ethereum" },
-  { id: 825, name: "Tether USDt", symbol: "USDT", slug: "tether" },
-  { id: 1839, name: "BNB", symbol: "BNB", slug: "bnb" },
-  { id: 5426, name: "Solana", symbol: "SOL", slug: "solana" },
-  { id: 3408, name: "USDC", symbol: "USDC", slug: "usd-coin" },
-  { id: 52, name: "XRP", symbol: "XRP", slug: "xrp" },
-  { id: 74, name: "Dogecoin", symbol: "DOGE", slug: "dogecoin" },
-  { id: 2010, name: "Cardano", symbol: "ADA", slug: "cardano" },
-  { id: 1958, name: "TRON", symbol: "TRX", slug: "tron" },
-];
+// Mock data has been moved to __tests__/mocks/mockCryptoData.ts for unit testing
 
 export async function fetchTop100Cryptos(): Promise<CMCCrypto[]> {
   try {
@@ -65,47 +55,46 @@ export async function fetchTop100Cryptos(): Promise<CMCCrypto[]> {
     // If localStorage fails, proceed to fetch without caching
   }
 
-  // Simulate API call delay
-  console.log("Fetching fresh CMC data (mock)");
-  await new Promise(resolve => setTimeout(resolve, 500));
+  console.log("Fetching fresh CMC data from API");
 
-  // In a real scenario, this would be an axios call to CoinMarketCap
-  // For example:
-  // try {
-  //   const response = await axios.get<CMCResponse>('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit=100', {
-  //     headers: { 'X-CMC_PRO_API_KEY': 'YOUR_API_KEY_HERE' },
-  //   });
-  //   const fetchedData = response.data.data;
-  //   // Cache the new data
-  //   try {
-  //     if (typeof localStorage !== 'undefined') {
-  //       const dataToCache: CachedData = { timestamp: Date.now(), data: fetchedData };
-  //       localStorage.setItem(CACHE_KEY, JSON.stringify(dataToCache));
-  //       console.log("CMC data cached successfully");
-  //     }
-  //   } catch (cacheError) {
-  //     console.warn("Error writing to localStorage:", cacheError);
-  //   }
-  //   return fetchedData;
-  // } catch (apiError) {
-  //   console.error("API call failed:", apiError);
-  //   throw apiError; // Propagate API error
-  // }
-
-  // Using mock data:
-  const fetchedData = mockCryptoData; // Simulate successful fetch
-
-  try {
-    if (typeof localStorage !== 'undefined') {
-      const dataToCache: CachedData = { timestamp: Date.now(), data: fetchedData };
-      localStorage.setItem(CACHE_KEY, JSON.stringify(dataToCache));
-      console.log("Mock CMC data cached successfully");
-    }
-  } catch (cacheError) {
-    console.warn("Error writing mock data to localStorage:", cacheError);
+  // Determine the correct API URL based on the environment (client-side vs server-side)
+  let apiUrl = '/api/crypto/listings';
+  if (typeof window === 'undefined') {
+    // Server-side: construct absolute URL
+    // Ensure NEXT_PUBLIC_APP_URL is set in your .env.local (e.g., http://localhost:3000 for dev)
+    const baseURL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'; 
+    apiUrl = `${baseURL}/api/crypto/listings`;
+    console.log(`Executing server-side API call to: ${apiUrl}`);
+  } else {
+    console.log(`Executing client-side API call to: ${apiUrl}`);
   }
 
-  return fetchedData;
+  try {
+    const response = await axios.get<CMCResponse>(apiUrl); // CMCResponse expects { data: CMCCrypto[] }
+    const fetchedData = response.data.data; // Access the nested 'data' array
+    
+    // Cache the new data
+    // Ensure localStorage is only accessed on the client-side
+    if (typeof window !== 'undefined') {
+      try {
+        const dataToCache: CachedData = { timestamp: Date.now(), data: fetchedData };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(dataToCache));
+        console.log("CMC data cached successfully via API route");
+      } catch (cacheError) {
+        console.warn("Error writing to localStorage:", cacheError);
+      }
+    }
+    
+    return fetchedData;
+  } catch (apiError) {
+    // Log the error and re-throw to be caught by the calling function
+    if (axios.isAxiosError(apiError)) {
+      console.error("API call to /api/crypto/listings failed:", apiError.response?.data || apiError.message);
+    } else {
+      console.error("Error fetching from /api/crypto/listings:", apiError);
+    }
+    throw apiError; 
+  }
 }
 
 // The old AppCrypto interface is replaced by BaseCryptoData from types.ts
