@@ -4,51 +4,70 @@ import Head from 'next/head'
 import React, { useState, useEffect } from 'react';
 import CryptoCalc from '../containers/'
 import { CryptoPrice } from '../containers/types'
-import { cryptos } from '../containers/constants'
-
-const cryptoSymbols = Object.keys(cryptos)
+import { fetchTop100Cryptos } from '../services/cmcService';
 
 export const getServerSideProps: GetServerSideProps = async () => {
     try {
-        // This is bad practice but this is just for fun and worst case is someone abuses the endpoint and we get limited
-        const headers = {'X-CMC_PRO_API_KEY': 'bd9f56fe-0681-45ba-8585-bfcc7610ad43'}
-        const res = await fetch(
-          `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${cryptoSymbols}`,
+        // Fetch initial list of cryptos (this now goes through our API route if called from client, but direct in getServerSideProps context is fine for initial load)
+        // However, to ensure consistency and utilize the server-side proxy for all CMC calls, 
+        // we should ideally call our own API route here too, or refactor fetchTop100Cryptos to be isomorphic.
+        // For now, let's assume fetchTop100Cryptos is smart enough or we adjust it.
+        // The main goal here is to get symbols for the price fetch.
+        const cmcData = await fetchTop100Cryptos(); // This will call /api/crypto/listings
+        const cryptoSymbols = cmcData.map(crypto => crypto.symbol);
+
+        if (cryptoSymbols.length === 0) {
+            // This case might occur if /api/crypto/listings fails or returns empty data
+            console.error('No cryptocurrency symbols fetched from /api/crypto/listings');
+            throw new Error('Failed to fetch cryptocurrency symbols for price quoting.');
+        }
+
+        const apiKey = process.env.NEXT_PUBLIC_CMC_API_KEY;
+        if (!apiKey) {
+            console.error('API key is not configured on the server for price quoting.');
+            throw new Error('API key for price quoting is not configured.');
+        }
+        
+        // Fetch prices for the symbols obtained
+        // This call still goes directly to CMC. For full proxying, this also needs an API route.
+        // However, direct server-to-server calls are not subject to CORS.
+        const priceResponse = await fetch(
+          `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${cryptoSymbols.join(',')}`,
           {
             method: 'GET',
-            headers,
+            headers: { 
+                'X-CMC_PRO_API_KEY': apiKey,
+                'Accept': 'application/json',
+             },
           }
-        )
+        );
         
-        if (res.ok) {
-            const prices = await res.json()
-            return {
-                props: {
-                    prices,
-                    error: null,
-                },
-            }
-        } else {
-            console.error('Failed to fetch crypto prices:', res.status, res.statusText)
-            return {
-                props: {
-                    prices: {},
-                    error: `API Error: ${res.status} ${res.statusText}`,
-                },
-            }
+        if (!priceResponse.ok) {
+            const errorBody = await priceResponse.text();
+            console.error('Failed to fetch crypto prices from CMC:', priceResponse.status, priceResponse.statusText, errorBody);
+            throw new Error(`API Error fetching prices: ${priceResponse.status} ${priceResponse.statusText}`);
         }
+        
+        const prices = await priceResponse.json();
+        
+        return {
+            props: {
+                prices, // This will be passed to the Home component
+                error: null,
+            },
+        };
     } catch (error) {
-        console.error('Error fetching crypto prices:', error)
+        console.error('Error in getServerSideProps:', error);
         return {
             props: {
                 prices: {},
-                error: error instanceof Error ? error.message : 'Unknown error occurred',
+                error: error instanceof Error ? error.message : 'Unknown error occurred during server-side rendering.',
             },
-        }
+        };
     }
-}
+};
 
-const Home: NextPage = ({ prices, error }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+const Home: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ prices, error }) => {
   const [cryptoPrices, setCryptoPrices] = useState<CryptoPrice>({})
   const [loading, setLoading] = useState<boolean>(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(error)
@@ -58,7 +77,8 @@ const Home: NextPage = ({ prices, error }: InferGetServerSidePropsType<typeof ge
     try {
       if (prices && prices.data) {
         const formattedPrices: CryptoPrice = {}
-        cryptoSymbols.forEach((symbol: string) => {
+        // Process all available crypto data from the API response
+        Object.keys(prices.data).forEach((symbol: string) => {
           if (prices.data[symbol] && prices.data[symbol].quote && prices.data[symbol].quote.USD) {
             formattedPrices[symbol] = prices.data[symbol].quote.USD.price
           } else {
